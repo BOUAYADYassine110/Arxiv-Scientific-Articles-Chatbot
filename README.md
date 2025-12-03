@@ -76,8 +76,7 @@
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/arxiv-research-hub.git
-   cd arxiv-research-hub
+   git clone https://github.com/BOUAYADYassine110/Arxiv-Scientific-Articles-Chatbot.git
    ```
 
 2. **Set up environment variables**
