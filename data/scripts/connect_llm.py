@@ -2,16 +2,17 @@ import requests
 import json
 import re
 import logging
+import os
 
  
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-API_KEY = "6abb0367405f002efd4115300d661144aa398d62372a093de50b288bf2a83d44"
+API_KEY = os.getenv("TOGETHER_API_KEY")
 class LLMConnect:
     def __init__(self, api_key=API_KEY, api_url="https://api.together.xyz/v1/chat/completions"):
         """Initialize the LLMConnect class with the cloud API endpoint and key."""
         if not api_key:
-            raise ValueError("API key is required for cloud LLM connection.")
+            raise ValueError("API key is required for cloud LLM connection. Set TOGETHER_API_KEY environment variable.")
         self.api_url = api_url
         self.api_key = api_key
         logging.info("LLMConnect initialized for cloud API.")
@@ -23,25 +24,31 @@ class LLMConnect:
             prompt = f"""
 You are an AI assistant for an ArXiv research chatbot. The user has asked: "{user_query}"
 Your task is to:
-1. If the user asks for an explanation (e.g., "What is a neural network?"), provide a concise explanation (100-200 words).
-2. Identify search parameters for research papers, including:
-   - Search query (e.g., "neural networks")
-   - Year filter (e.g., "2025")
-   - Category filter (e.g., "cs.AI")
-   - Author filter (e.g., "Yann LeCun")
-   - Title keywords
-   - Abstract keywords
-3. Only include filters explicitly mentioned in the query. If a filter is not mentioned, set it to an empty string.
-4. Return a JSON object with:
-   - "explanation": The explanation text (or empty string if not requested).
-   - "search_params": A dictionary with keys "query", "year", "category", "author", "title", "abstract" (use empty strings for unspecified parameters).
+1. Extract the MAIN TOPIC the user wants to search for (ignore words like "find", "give me", "show me", "papers", "articles", numbers)
+2. Extract the result limit if specified (numbers before words like "papers", "articles", "results")
+3. Extract other filters if mentioned (year, category, author)
+4. If user asks for explanation, provide it
 
-Example input: "give me some articles about neural networks"
-Example output:
+IMPORTANT: The "query" field should contain ONLY the research topic, NOT the full user input.
+
+Examples:
+- "find me 10 papers about AI" → query="AI", limit="10"
+- "show me 5 articles on neural networks" → query="neural networks", limit="5"
+- "give me papers about machine learning in 2024" → query="machine learning", year="2024"
+- "I want 20 papers on quantum computing" → query="quantum computing", limit="20"
+
+Return a JSON object with:
+- "explanation": Explanation text (or empty string)
+- "search_params": Dictionary with "query" (research topic ONLY), "limit", "year", "category", "author", "title", "abstract"
+
+Example 1:
+Input: "find me 10 papers about AI"
+Output:
 {{
   "explanation": "",
   "search_params": {{
-    "query": "neural networks",
+    "query": "AI",
+    "limit": "10",
     "year": "",
     "category": "",
     "author": "",
@@ -50,14 +57,32 @@ Example output:
   }}
 }}
 
-Example input: "What is a neural network, and give me some articles about it in year 2025 with category cs.AI"
-Example output:
+Example 2:
+Input: "show me 5 articles on deep learning"
+Output:
 {{
-  "explanation": "A neural network is a computational model inspired by the human brain, consisting of interconnected nodes (neurons) organized in layers...",
+  "explanation": "",
   "search_params": {{
-    "query": "neural networks",
-    "year": "2025",
-    "category": "cs.AI",
+    "query": "deep learning",
+    "limit": "5",
+    "year": "",
+    "category": "",
+    "author": "",
+    "title": "",
+    "abstract": ""
+  }}
+}}
+
+Example 3:
+Input: "I need 20 papers on quantum computing from 2024"
+Output:
+{{
+  "explanation": "",
+  "search_params": {{
+    "query": "quantum computing",
+    "limit": "20",
+    "year": "2024",
+    "category": "",
     "author": "",
     "title": "",
     "abstract": ""
@@ -71,7 +96,7 @@ Example output:
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": user_query}
                 ],
-                "max_tokens": 500,
+                "max_tokens": 300,
                 "temperature": 0.7
             }
             headers = {
@@ -98,6 +123,7 @@ Example output:
                  
                 search_params = {
                     "query": user_query,
+                    "limit": "",
                     "year": "",
                     "category": "",
                     "author": "",
@@ -119,6 +145,7 @@ Example output:
                 "explanation": "",
                 "search_params": {
                     "query": user_query,
+                    "limit": "",
                     "year": "",
                     "category": "",
                     "author": "",

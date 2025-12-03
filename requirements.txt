@@ -1,8 +1,0 @@
-pandas
-numpy
-streamlit
-sentence-transformers
-faiss-cpu
-plotly
-requests
-arxiv

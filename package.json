@@ -1,0 +1,23 @@
+{
+  "name": "arxiv-research-hub",
+  "version": "1.0.0",
+  "description": "AI-powered research paper discovery platform",
+  "scripts": {
+    "dev:backend": "cd backend && python start.py",
+    "dev:frontend": "cd frontend && npm start",
+    "build:frontend": "cd frontend && npm run build",
+    "install:backend": "cd backend && pip install -r requirements.txt",
+    "install:frontend": "cd frontend && npm install",
+    "setup": "npm run install:backend && npm run install:frontend"
+  },
+  "keywords": [
+    "arxiv",
+    "research",
+    "ai",
+    "search",
+    "react",
+    "fastapi"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

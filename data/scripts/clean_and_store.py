@@ -1,6 +1,8 @@
 import pandas as pd
 import sqlite3
 import logging
+import json
+import ast
 
  
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -44,13 +46,30 @@ try:
 
      
     logging.info("Cleaning data...")
-    df = df.drop_duplicates(subset=['arxiv_id'])
-    df['title'] = df['title'].str.strip()
-    df['abstract'] = df['abstract'].str.strip()
-    df['doi'] = df['doi'].fillna('')
-    df['authors'] = df['authors'].apply(lambda x: eval(x) if isinstance(x, str) else x)   
-    df['categories'] = df['categories'].apply(convert_categories)
-    logging.info(f"After cleaning, {len(df)} unique papers remain")
+    try:
+        df = df.drop_duplicates(subset=['arxiv_id'])
+        df['title'] = df['title'].str.strip()
+        df['abstract'] = df['abstract'].str.strip()
+        df['doi'] = df['doi'].fillna('')
+        
+        def safe_parse_authors(x):
+            if not isinstance(x, str):
+                return x
+            try:
+                return ast.literal_eval(x)
+            except (ValueError, SyntaxError):
+                logging.warning(f"Failed to parse authors: {x}")
+                return []
+        
+        df['authors'] = df['authors'].apply(safe_parse_authors)
+        df['categories'] = df['categories'].apply(convert_categories)
+        logging.info(f"After cleaning, {len(df)} unique papers remain")
+    except KeyError as e:
+        logging.error(f"Missing required column: {e}")
+        raise
+    except AttributeError as e:
+        logging.error(f"Data type error during cleaning: {e}")
+        raise
 
    
     logging.info("Connecting to arxiv_data.db...")
@@ -90,10 +109,16 @@ try:
                       (article_id, author_id))
  
     logging.info("Inserting data into database...")
-    for _, row in df.iterrows():
+    batch_size = 100
+    for i, (_, row) in enumerate(df.iterrows()):
         article_id = insert_article(conn, row)
         insert_article_authors(conn, article_id, row['authors'])
-        conn.commit()
+        
+        if (i + 1) % batch_size == 0:
+            conn.commit()
+            logging.info(f"Processed {i + 1} articles")
+    
+    conn.commit()  # Final commit for remaining records
 
     conn.close()
     logging.info("Data cleaned and stored in arxiv_data.db")
