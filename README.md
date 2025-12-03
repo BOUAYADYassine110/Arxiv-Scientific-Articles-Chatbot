@@ -362,7 +362,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Support
 
-- **📧 Email**: [your-email@domain.com](mailto:your-email@domain.com)
+- **📧 Email**: [bouayadyassine110@gmail.com](mailto:bouayadyassine110@gmail.com)
 - **💬 Discussions**: [GitHub Discussions](../../discussions)
 - **🐛 Issues**: [Bug Reports](../../issues)
 - **📖 Wiki**: [Documentation](../../wiki)
@@ -373,6 +373,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **⭐ Star this repository if you find it helpful!**
 
-Made with ❤️ by [Your Name](https://github.com/yourusername)
+Made with ❤️ by [BOUAYAD Yassine](https://github.com/BOUAYADYassine110)
 
 </div>
