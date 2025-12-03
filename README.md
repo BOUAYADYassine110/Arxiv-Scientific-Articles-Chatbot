@@ -31,6 +31,7 @@
 
 ### 🔍 **Advanced Search Capabilities**
 - **Multi-Filter Search**: Filter by year, category, author, title, and abstract
+- **Smart Result Limiting**: Specify result count in natural language (e.g., "find me 10 papers")
 - **Real-Time Results**: Lightning-fast search through 4,000+ research papers
 - **Export Functionality**: Download search results as JSON for further analysis
 - **Search History**: Persistent search results with localStorage integration
@@ -79,12 +80,21 @@
    cd arxiv-research-hub
    ```
 
-2. **Install all dependencies**
+2. **Set up environment variables**
+   ```bash
+   # Create .env file in backend directory
+   cd backend
+   echo "TOGETHER_API_KEY=your_api_key_here" > .env
+   echo "FRONTEND_URL=http://localhost:3000" >> .env
+   cd ..
+   ```
+
+3. **Install all dependencies**
    ```bash
    npm run setup
    ```
 
-3. **Start the development servers**
+4. **Start the development servers**
    
    **Option A: Manual (Recommended)**
    ```bash
@@ -100,7 +110,7 @@
    start-dev.bat
    ```
 
-4. **Access the application**
+5. **Access the application**
    - 🌐 **Frontend**: http://localhost:3000
    - 🔌 **Backend API**: http://localhost:8000
    - 📚 **API Documentation**: http://localhost:8000/docs
@@ -168,6 +178,17 @@ graph LR
 
 ---
 
+## 🔒 Security Features
+
+- **Environment Variables**: Sensitive credentials stored securely in .env files
+- **Input Validation**: Comprehensive validation for all user inputs and API requests
+- **XSS Prevention**: Sanitized localStorage data and API responses
+- **Error Sanitization**: Generic error messages to prevent information disclosure
+- **Bounds Checking**: FAISS index validation to prevent crashes
+- **Dependency Security**: Regular updates with npm security overrides
+
+---
+
 ## 🛠️ Technology Stack
 
 ### **Backend**
@@ -203,6 +224,7 @@ Content-Type: application/json
 {
   "query": "neural networks",
   "search_type": "ai",
+  "limit": 10,
   "year_filter": "2023",
   "category_filter": "cs.AI"
 }
